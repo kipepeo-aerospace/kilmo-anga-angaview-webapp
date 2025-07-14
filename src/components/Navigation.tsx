@@ -1,18 +1,26 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Home, 
-  Upload, 
-  Image, 
-  Settings, 
-  User, 
-  LogOut, 
-  Sprout 
+import {
+  Home,
+  Upload,
+  Image,
+  Settings,
+  User,
+  LogOut,
+  Sprout
 } from 'lucide-react';
 
 const Navigation: React.FC = () => {
-  const { user, logout } = useAuth();
+
+  const { instance, accounts } = useMsal();
+  const account = useAccount(accounts[0] || {});
+
+  const logout = () => instance.logoutRedirect({
+    postLogoutRedirectUri: window.location.origin + '/login'
+  });
+
   const location = useLocation();
 
   const navItems = [
@@ -31,8 +39,8 @@ const Navigation: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <Sprout className="h-8 w-8 text-green-600" />
-              <span className="text-xl font-bold text-gray-900">Kilimo Anga</span>
+              <img src="/assets/kilimoanga_logo.png" className="h-8 w-8" alt="Kilimo Anga Logo" />
+              <span className="text-xl font-bold text-gray-900">Anga View</span>
             </Link>
           </div>
 
@@ -43,11 +51,10 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    isActive(item.path)
-                      ? 'bg-green-50 text-green-700 border-b-2 border-green-600'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${isActive(item.path)
+                    ? 'bg-green-50 text-green-700 border-b-2 border-green-600'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
@@ -58,7 +65,7 @@ const Navigation: React.FC = () => {
 
           <div className="flex items-center space-x-4">
             <div className="text-sm text-gray-700">
-              Welcome, <span className="font-medium">{user?.clientId}</span>
+              Welcome, <span className="font-medium">{account?.name}</span>
             </div>
             <button
               onClick={logout}
@@ -80,11 +87,10 @@ const Navigation: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors duration-200 ${
-                  isActive(item.path)
-                    ? 'bg-green-50 text-green-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors duration-200 ${isActive(item.path)
+                  ? 'bg-green-50 text-green-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 <span>{item.label}</span>
