@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { Link } from 'react-router-dom';
-import { 
-  Upload, 
-  Image, 
-  Settings, 
-  BarChart3, 
+import {
+  Upload,
+  Image,
+  Settings,
+  BarChart3,
   Calendar,
   MapPin,
   TrendingUp,
@@ -16,32 +16,43 @@ import { Farm, UserProfile } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { accounts, instance } = useMsal();
+  const account = useAccount(accounts[0] || null);
+  const clientId = account?.name;
+  console.log("MSAL account object:", account);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user) return;
-      
+      if (!account) return;
+
       try {
+        const response = await instance.acquireTokenSilent({
+          scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+          account
+        });
+
+        const token = response.accessToken;
+
         const [farmsData, profileData] = await Promise.all([
-          apiService.getUserFarms(user.clientId),
-          apiService.getUserProfile(user.clientId)
+          apiService.getUserFarms(account.name ?? '', token),
+          apiService.getUserProfile(account.name ?? '', token)
         ]);
-        
+
         setFarms(farmsData);
         setProfile(profileData);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setIsLoading(false);
       }
+
     };
 
     fetchDashboardData();
-  }, [user]);
+  }, [account]);
 
   if (isLoading) {
     return (
@@ -107,7 +118,7 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.clientId}
+            Welcome back, {account?.name}
           </h1>
           <p className="mt-2 text-gray-600">
             Manage your farms and process drone imagery with ease
@@ -170,7 +181,7 @@ const Dashboard: React.FC = () => {
               Register new farm →
             </Link>
           </div>
-          
+
           {farms.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
               <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />

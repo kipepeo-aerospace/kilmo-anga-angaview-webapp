@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useMsal, useAccount } from '@azure/msal-react';
+import { InteractionStatus } from '@azure/msal-browser';
 import LoadingSpinner from './LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -8,7 +9,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { accounts, inProgress } = useMsal();
+  const account = useAccount(accounts[0] || null);
+
+  const isLoading = inProgress !== InteractionStatus.None;
 
   if (isLoading) {
     return (
@@ -18,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
+  if (!account) {
     return <Navigate to="/login" replace />;
   }
 
