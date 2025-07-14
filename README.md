@@ -107,6 +107,7 @@ The app currently uses mocked endpoints for all backend features. These will be 
 
 - [x] VARI index support (done)
 - [ ] NDVI and other indices
+- [ ] Azure AD B2C integration for authentication
 - [ ] Insights dashboard (replant alerts, crop stress zones)
 - [ ] Azure Blob & Function integration
 - [ ] Mobile app version
