@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { apiService } from '../services/api';
 import { UserProfile } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { User, Mail, Calendar, MapPin, Image, Activity } from 'lucide-react';
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
+  const { instance, accounts } = useMsal();
+  const account = useAccount(accounts[0] || {});
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) return;
-      
+      if (!account) return;
+
       try {
-        const profileData = await apiService.getUserProfile(user.clientId);
+        const response = await instance.acquireTokenSilent({
+          scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+          account: account
+        });
+
+        const token = response.accessToken;
+        const profileData = await apiService.getUserProfile(account.name ?? '', token);
         setProfile(profileData);
+
       } catch (error) {
         console.error('Error fetching profile:', error);
       } finally {
@@ -25,7 +33,7 @@ const Profile: React.FC = () => {
     };
 
     fetchProfile();
-  }, [user]);
+  }, [account]);
 
   if (isLoading) {
     return (
@@ -94,7 +102,7 @@ const Profile: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Client ID</p>
-                  <p className="text-lg font-medium text-gray-900">{profile.clientId}</p>
+                  <p className="text-lg font-medium text-gray-900">{account?.name}</p>
                 </div>
               </div>
 
@@ -104,7 +112,7 @@ const Profile: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-lg font-medium text-gray-900">{profile.email}</p>
+                  <p className="text-lg font-medium text-gray-900">{account?.username}</p>
                 </div>
               </div>
 
@@ -158,7 +166,7 @@ const Profile: React.FC = () => {
                   {new Date(profile.signupDate).toLocaleDateString()}
                 </span>
               </div>
-              
+
               {profile.farmsCount > 0 && (
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
@@ -168,7 +176,7 @@ const Profile: React.FC = () => {
                   <span className="text-sm text-gray-500">Recently</span>
                 </div>
               )}
-              
+
               {profile.imagesCount > 0 && (
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
@@ -178,7 +186,7 @@ const Profile: React.FC = () => {
                   <span className="text-sm text-gray-500">Recently</span>
                 </div>
               )}
-              
+
               {profile.totalProcessingJobs > 0 && (
                 <div className="flex items-center justify-between py-3">
                   <div className="flex items-center space-x-3">
