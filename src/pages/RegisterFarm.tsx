@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { Upload, X, CheckCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
 
 const RegisterFarm: React.FC = () => {
-  const { user } = useAuth();
+  const { instance, accounts } = useMsal();
+  const account = useAccount(accounts[0] || {});
+
   const [formData, setFormData] = useState({
     farmId: '',
     farmName: ''
   });
+
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,7 +39,7 @@ const RegisterFarm: React.FC = () => {
     const files = e.target.files;
     if (files) {
       setSelectedFiles(files);
-      
+
       // Generate previews
       const newPreviews: string[] = [];
       Array.from(files).forEach(file => {
@@ -67,54 +70,55 @@ const RegisterFarm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors: { [key: string]: string } = {};
-    
+
     if (!formData.farmId) {
       newErrors.farmId = 'Farm ID is required';
     }
-    
+
     if (!formData.farmName) {
       newErrors.farmName = 'Farm name is required';
     }
-    
+
     if (!selectedFiles || selectedFiles.length === 0) {
       newErrors.files = 'Please select at least one image';
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    if (!user) return;
+    if (!account) return;
 
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 200);
+      const response = await instance.acquireTokenSilent({
+        scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+        account,
+      });
 
-      const success = await apiService.uploadFiles(user.clientId, formData.farmId, selectedFiles!);
-      
-      clearInterval(progressInterval);
+      const token = response.accessToken;
+
+      const success = await apiService.uploadFiles(
+        account.name ?? '',
+        formData.farmId,
+        formData.farmName,
+        selectedFiles!,
+        token
+      );
+
       setUploadProgress(100);
-      
+
       if (success) {
         setToast({
           message: 'Farm registered and images uploaded successfully!',
           type: 'success'
         });
-        
+
         // Reset form
         setFormData({ farmId: '', farmName: '' });
         setSelectedFiles(null);
@@ -144,7 +148,7 @@ const RegisterFarm: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Farm Information</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="farmId" className="block text-sm font-medium text-gray-700">
@@ -156,9 +160,8 @@ const RegisterFarm: React.FC = () => {
                   type="text"
                   value={formData.farmId}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                    errors.farmId ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.farmId ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="e.g., farm001"
                 />
                 {errors.farmId && (
@@ -176,9 +179,8 @@ const RegisterFarm: React.FC = () => {
                   type="text"
                   value={formData.farmName}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                    errors.farmName ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.farmName ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="e.g., North Field"
                 />
                 {errors.farmName && (
@@ -190,7 +192,7 @@ const RegisterFarm: React.FC = () => {
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Upload Images</h2>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select aerial images (JPG, PNG)
