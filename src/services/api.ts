@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ImageFile, ProcessingJob, UserProfile, Farm } from '../types';
 
-const API_BASE_URL = '/api'; // This would be your actual API URL
+const API_BASE_URL = 'http://localhost:8000';
 
 // Mock data for development
 const mockRawImages: ImageFile[] = [
@@ -55,27 +55,47 @@ const mockIndices: ImageFile[] = [
 
 export const apiService = {
     // Upload files
-    uploadFiles: async (clientId: string, farmId: string, files: FileList): Promise<boolean> => {
-        // Mock upload with progress
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('Uploading files:', { clientId, farmId, files: Array.from(files) });
+    uploadFiles: async (
+        clientId: string,
+        farmId: string,
+        farmName: string,
+        files: FileList,
+        token: string
+    ): Promise<boolean> => {
+        for (const file of Array.from(files)) {
+            const formData = new FormData();
+            formData.append("clientId", clientId);
+            formData.append("farmId", farmId);
+            formData.append("farmName", farmName);
+            formData.append("file", file);
+
+            await axios.post("http://localhost:8000/upload", formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+        }
         return true;
     },
 
     // List files
-    listFiles: async (clientId: string, farmId: string, type: 'raw' | 'mosaic' | 'indices'): Promise<ImageFile[]> => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        switch (type) {
-            case 'raw':
-                return mockRawImages;
-            case 'mosaic':
-                return mockMosaics;
-            case 'indices':
-                return mockIndices;
-            default:
-                return [];
-        }
+    listFiles: async (
+        clientId: string,
+        farmId: string,
+        type: 'raw' | 'mosaic' | 'indices',
+        token: string
+    ): Promise<ImageFile[]> => {
+        const res = await axios.get(`http://localhost:8000/users/${clientId}/gallery`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            params: {
+                farm_id: farmId,
+                file_type: type
+            }
+        });
+        return res.data;
     },
 
     // Process indices
