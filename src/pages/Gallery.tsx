@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { useSearchParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { ImageFile, Farm } from '../types';
@@ -9,7 +9,10 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
 
 const Gallery: React.FC = () => {
-  const { user } = useAuth();
+  const { instance, accounts } = useMsal();
+  const account = useAccount(accounts[0] || {});
+
+
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'raw' | 'mosaic' | 'indices'>('raw');
   const [selectedFarm, setSelectedFarm] = useState<string>('');
@@ -27,12 +30,22 @@ const Gallery: React.FC = () => {
 
   useEffect(() => {
     const fetchFarms = async () => {
-      if (!user) return;
-      
+      if (!account) return;
+
       try {
-        const farmsData = await apiService.getUserFarms(user.clientId);
+        const response = await instance.acquireTokenSilent({
+          scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+          account
+        });
+
+        const token = response.accessToken;
+
+        const [farmsData] = await Promise.all([
+          apiService.getUserFarms(account.name ?? '', token),
+        ]);
+
         setFarms(farmsData);
-        
+
         // Set initial farm selection from URL param or first farm
         const farmParam = searchParams.get('farm');
         if (farmParam && farmsData.some(f => f.id === farmParam)) {
@@ -46,16 +59,33 @@ const Gallery: React.FC = () => {
     };
 
     fetchFarms();
-  }, [user, searchParams]);
+  }, [account, searchParams]);
+
 
   useEffect(() => {
     const fetchImages = async () => {
-      if (!user || !selectedFarm) return;
-      
+      if (!account || !selectedFarm) return;
+
       setIsLoading(true);
       try {
-        const imagesData = await apiService.listFiles(user.clientId, selectedFarm, activeTab);
+        const response = await instance.acquireTokenSilent({
+          scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+          account
+        });
+
+        const token = response.accessToken;
+
+        const [imagesData] = await Promise.all([
+          apiService.listFiles(
+            account.name ?? '',
+            selectedFarm,
+            activeTab,
+            token),
+        ]);
+
         setImages(imagesData);
+
+
       } catch (error) {
         console.error('Error fetching images:', error);
         setToast({
@@ -68,7 +98,7 @@ const Gallery: React.FC = () => {
     };
 
     fetchImages();
-  }, [user, selectedFarm, activeTab]);
+  }, [account, selectedFarm, activeTab]);
 
   const handlePreview = (image: ImageFile) => {
     setPreviewImage(image);
@@ -80,7 +110,7 @@ const Gallery: React.FC = () => {
     link.href = image.url;
     link.download = image.filename;
     link.click();
-    
+
     setToast({
       message: `Downloaded ${image.filename}`,
       type: 'success'
@@ -88,13 +118,13 @@ const Gallery: React.FC = () => {
   };
 
   const getTabCounts = () => {
-    // In a real app, you'd fetch these counts from the API
     return {
-      raw: activeTab === 'raw' ? images.length : 3,
-      mosaic: activeTab === 'mosaic' ? images.length : 1,
-      indices: activeTab === 'indices' ? images.length : 1
+      raw: activeTab === 'raw' ? images.length : 0,
+      mosaic: activeTab === 'mosaic' ? images.length : 0,
+      indices: activeTab === 'indices' ? images.length : 0
     };
   };
+
 
   const tabCounts = getTabCounts();
 
@@ -138,11 +168,10 @@ const Gallery: React.FC = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as 'raw' | 'mosaic' | 'indices')}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                        activeTab === tab.id
-                          ? 'border-green-500 text-green-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
                     >
                       {tab.label}
                       <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs">
@@ -171,7 +200,7 @@ const Gallery: React.FC = () => {
                     No {activeTab} images found
                   </h3>
                   <p className="text-gray-600">
-                    {activeTab === 'raw' 
+                    {activeTab === 'raw'
                       ? 'Upload some images to get started.'
                       : 'Process your raw images to generate these results.'
                     }
