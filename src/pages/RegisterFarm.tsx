@@ -8,6 +8,7 @@ import Toast from '../components/Toast';
 const RegisterFarm: React.FC = () => {
   const { instance, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
+  const clientId = account?.homeAccountId; // unique identifier for every user
 
   const [formData, setFormData] = useState({
     farmId: '',
@@ -104,7 +105,7 @@ const RegisterFarm: React.FC = () => {
       const token = response.accessToken;
 
       const success = await apiService.uploadFiles(
-        account.name ?? '',
+        clientId ?? '',
         formData.farmId,
         formData.farmName,
         selectedFiles!,

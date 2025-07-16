@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { useSearchParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { Farm, ProcessingJob } from '../types';
@@ -8,53 +8,87 @@ import Toast from '../components/Toast';
 import { Play, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 const Process: React.FC = () => {
-  const { user } = useAuth();
+  const { accounts, instance } = useMsal();
+  const account = useAccount(accounts[0] || null);
+  const clientId = account?.homeAccountId; // unique identifier for every user
+
   const [searchParams] = useSearchParams();
   const [selectedFarm, setSelectedFarm] = useState<string>('');
-  const [selectedIndices, setSelectedIndices] = useState<string[]>(['vari']);
+  const [selectedIndices, setSelectedIndices] = useState<string[]>(['VARI']);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentJob, setCurrentJob] = useState<ProcessingJob | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   const availableIndices = [
-    { id: 'vari', name: 'VARI (Visible Atmospherically Resistant Index)', description: 'Measures vegetation greenness' },
-    { id: 'ndvi', name: 'NDVI (Normalized Difference Vegetation Index)', description: 'Vegetation health indicator' },
-    { id: 'gndvi', name: 'GNDVI (Green NDVI)', description: 'Green vegetation index' },
-    { id: 'savi', name: 'SAVI (Soil Adjusted Vegetation Index)', description: 'Minimizes soil background effects' }
+    { id: 'VARI', name: 'VARI (Visible Atmospherically Resistant Index)', description: 'Measures vegetation greenness' },
+    { id: 'NDVI', name: 'NDVI (Normalized Difference Vegetation Index)', description: 'Vegetation health indicator' },
+    { id: 'GNDVI', name: 'GNDVI (Green NDVI)', description: 'Green vegetation index' },
+    { id: 'SAVI', name: 'SAVI (Soil Adjusted Vegetation Index)', description: 'Minimizes soil background effects' }
   ];
 
+  // Fetch farms on mount
   useEffect(() => {
     const fetchFarms = async () => {
-      if (!user) return;
-      
+      if (!account) return;
+
       try {
-        const farmsData = await apiService.getUserFarms(user.clientId);
+        const response = await instance.acquireTokenSilent({
+          scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+          account
+        });
+
+        const token = response.accessToken;
+
+        const [farmsData] = await Promise.all([
+          apiService.getUserFarms(clientId ?? '', token),
+        ]);
+
         setFarms(farmsData);
-        
+
         // Set initial farm selection from URL param or first farm
         const farmParam = searchParams.get('farm');
+
         if (farmParam && farmsData.some(f => f.id === farmParam)) {
           setSelectedFarm(farmParam);
         } else if (farmsData.length > 0) {
           setSelectedFarm(farmsData[0].id);
         }
+
       } catch (error) {
         console.error('Error fetching farms:', error);
       }
     };
 
     fetchFarms();
-  }, [user, searchParams]);
+  }, [account, searchParams]);
 
+  // check status
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
-    if (isProcessing && user && selectedFarm) {
+
+    if (isProcessing && account && selectedFarm) {
       interval = setInterval(async () => {
+
         try {
-          const status = await apiService.checkStatus(user.clientId, selectedFarm);
+
+          const response = await instance.acquireTokenSilent({
+            scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+            account
+          });
+
+          const token = response.accessToken;
+
+          const status = await apiService.checkStatus(
+            clientId ?? '',
+            selectedFarm,
+            token);
+
+          console.log('Received job from backend:', status);
+
+
           if (status) {
+
             setCurrentJob(status);
             if (status.status === 'completed') {
               setIsProcessing(false);
@@ -79,21 +113,23 @@ const Process: React.FC = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isProcessing, user, selectedFarm]);
+  }, [isProcessing, account, selectedFarm]);
 
+  // chnage of indices
   const handleIndicesChange = (indexId: string) => {
-    setSelectedIndices(prev => 
-      prev.includes(indexId) 
+    setSelectedIndices(prev =>
+      prev.includes(indexId)
         ? prev.filter(id => id !== indexId)
         : [...prev, indexId]
     );
   };
 
+  // image processing
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user || !selectedFarm) return;
-    
+
+    if (!account || !selectedFarm) return;
+
     if (selectedIndices.length === 0) {
       setToast({
         message: 'Please select at least one index to compute.',
@@ -106,12 +142,26 @@ const Process: React.FC = () => {
     setCurrentJob(null);
 
     try {
-      const job = await apiService.processIndices(user.clientId, selectedFarm, selectedIndices);
+      const response = await instance.acquireTokenSilent({
+        scopes: ["api://kipepeo.space/kilimoanga-api/read"],
+        account
+      });
+
+      const token = response.accessToken;
+
+      const job = await apiService.processIndices(
+        clientId ?? '',
+        selectedFarm,
+        selectedIndices,
+        token);
+
       setCurrentJob(job);
+
       setToast({
         message: 'Processing started! You will be notified when complete.',
         type: 'success'
       });
+
     } catch (error) {
       setIsProcessing(false);
       setToast({
@@ -252,14 +302,14 @@ const Process: React.FC = () => {
                   {currentJob.progress}% complete
                 </span>
               </div>
-              
+
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-green-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${currentJob.progress}%` }}
                 />
               </div>
-              
+
               <div className="text-sm text-gray-600">
                 <p><strong>Farm:</strong> {selectedFarm}</p>
                 <p><strong>Indices:</strong> {currentJob.indices.join(', ').toUpperCase()}</p>

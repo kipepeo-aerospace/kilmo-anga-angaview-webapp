@@ -18,8 +18,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 const Dashboard: React.FC = () => {
   const { accounts, instance } = useMsal();
   const account = useAccount(accounts[0] || null);
-  const clientId = account?.name;
-  console.log("MSAL account object:", account);
+  const clientId = account?.homeAccountId; // unique identifier for every user
+
   const [farms, setFarms] = useState<Farm[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,8 +37,8 @@ const Dashboard: React.FC = () => {
         const token = response.accessToken;
 
         const [farmsData, profileData] = await Promise.all([
-          apiService.getUserFarms(account.name ?? '', token),
-          apiService.getUserProfile(account.name ?? '', token)
+          apiService.getUserFarms(clientId ?? '', token),
+          apiService.getUserProfile(clientId ?? '', token)
         ]);
 
         setFarms(farmsData);

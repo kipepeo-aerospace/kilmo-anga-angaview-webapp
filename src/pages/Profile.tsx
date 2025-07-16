@@ -8,6 +8,8 @@ import { User, Mail, Calendar, MapPin, Image, Activity } from 'lucide-react';
 const Profile: React.FC = () => {
   const { instance, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
+  const clientId = account?.homeAccountId; // unique identifier for every user
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,7 +24,7 @@ const Profile: React.FC = () => {
         });
 
         const token = response.accessToken;
-        const profileData = await apiService.getUserProfile(account.name ?? '', token);
+        const profileData = await apiService.getUserProfile(clientId ?? '', token);
         setProfile(profileData);
 
       } catch (error) {
@@ -101,7 +103,7 @@ const Profile: React.FC = () => {
                   <User className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Client ID</p>
+                  <p className="text-sm text-gray-500">Display Name</p>
                   <p className="text-lg font-medium text-gray-900">{account?.name}</p>
                 </div>
               </div>

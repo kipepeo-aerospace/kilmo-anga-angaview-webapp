@@ -11,7 +11,7 @@ import Toast from '../components/Toast';
 const Gallery: React.FC = () => {
   const { instance, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
-
+  const clientId = account?.homeAccountId; // unique identifier for every user
 
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'raw' | 'mosaic' | 'indices'>('raw');
@@ -41,7 +41,7 @@ const Gallery: React.FC = () => {
         const token = response.accessToken;
 
         const [farmsData] = await Promise.all([
-          apiService.getUserFarms(account.name ?? '', token),
+          apiService.getUserFarms(clientId ?? '', token),
         ]);
 
         setFarms(farmsData);
@@ -77,7 +77,7 @@ const Gallery: React.FC = () => {
 
         const [imagesData] = await Promise.all([
           apiService.listFiles(
-            account.name ?? '',
+            clientId ?? '',
             selectedFarm,
             activeTab,
             token),
@@ -116,7 +116,7 @@ const Gallery: React.FC = () => {
       type: 'success'
     });
   };
-
+  // get number of images available in each tab
   const getTabCounts = () => {
     return {
       raw: activeTab === 'raw' ? images.length : 0,

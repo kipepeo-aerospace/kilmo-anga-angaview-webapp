@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useMsal, useAccount } from "@azure/msal-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Sprout, Eye, EyeOff } from 'lucide-react';
@@ -33,33 +34,33 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors: { [key: string]: string } = {};
-    
+
     if (!formData.clientId) {
       newErrors.clientId = 'Client ID is required';
     } else if (formData.clientId.length < 3) {
       newErrors.clientId = 'Client ID must be at least 3 characters';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -87,7 +88,7 @@ const Signup: React.FC = () => {
             Create your account to start processing drone images
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
             <div>
@@ -100,9 +101,8 @@ const Signup: React.FC = () => {
                 type="text"
                 value={formData.clientId}
                 onChange={handleChange}
-                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                  errors.clientId ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.clientId ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="Enter a unique Client ID"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -123,9 +123,8 @@ const Signup: React.FC = () => {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                  errors.email ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.email ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="Enter your email"
               />
               {errors.email && (
@@ -144,9 +143,8 @@ const Signup: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                    errors.password ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`mt-1 block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.password ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -177,9 +175,8 @@ const Signup: React.FC = () => {
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`mt-1 block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="Confirm your password"
                 />
                 <button
