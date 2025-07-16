@@ -18,7 +18,10 @@ import LoadingSpinner from '../components/LoadingSpinner';
 const Dashboard: React.FC = () => {
   const { accounts, instance } = useMsal();
   const account = useAccount(accounts[0] || null);
+
   const clientId = account?.homeAccountId; // unique identifier for every user
+  const email = account?.username // email
+  const displayName = account?.name // unique name
 
   const [farms, setFarms] = useState<Farm[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -36,9 +39,9 @@ const Dashboard: React.FC = () => {
 
         const token = response.accessToken;
 
-        const [farmsData, profileData] = await Promise.all([
-          apiService.getUserFarms(clientId ?? '', token),
-          apiService.getUserProfile(clientId ?? '', token)
+        const [profileData, farmsData] = await Promise.all([
+          apiService.getUserProfile(clientId ?? '', email ?? "", displayName ?? "", token),
+          apiService.getUserFarms(clientId ?? '', token)
         ]);
 
         setFarms(farmsData);
@@ -118,7 +121,7 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {account?.name}
+            Welcome back, {displayName}
           </h1>
           <p className="mt-2 text-gray-600">
             Manage your farms and process drone imagery with ease

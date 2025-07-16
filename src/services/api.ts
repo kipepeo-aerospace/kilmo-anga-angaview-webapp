@@ -84,10 +84,14 @@ export const apiService = {
     },
 
     // Get user profile
-    getUserProfile: async (clientId: string, token: string): Promise<UserProfile> => {
+    getUserProfile: async (clientId: string, email: string, displayName: string, token: string): Promise<UserProfile> => {
         const res = await axios.get(`http://localhost:8000/users/${clientId}/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
+            },
+            params: {
+                email,
+                displayName
             }
         });
         return res.data;

@@ -125,7 +125,6 @@ const Gallery: React.FC = () => {
     };
   };
 
-
   const tabCounts = getTabCounts();
 
   return (

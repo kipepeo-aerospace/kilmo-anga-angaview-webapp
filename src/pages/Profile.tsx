@@ -9,6 +9,8 @@ const Profile: React.FC = () => {
   const { instance, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
   const clientId = account?.homeAccountId; // unique identifier for every user
+  const email = account?.username // email
+  const displayName = account?.name // unique name
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,8 +26,9 @@ const Profile: React.FC = () => {
         });
 
         const token = response.accessToken;
-        const profileData = await apiService.getUserProfile(clientId ?? '', token);
+        const profileData = await apiService.getUserProfile(clientId ?? '', email ?? "", displayName ?? "", token);
         setProfile(profileData);
+
 
       } catch (error) {
         console.error('Error fetching profile:', error);

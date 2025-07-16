@@ -1,5 +1,6 @@
 export interface User {
   clientId: string;
+  displayName: string;
   email: string;
   signupDate: string;
 }
@@ -15,6 +16,8 @@ export interface Farm {
 export interface ImageFile {
   id: string;
   filename: string;
+  farmId: string,
+  clientId: string,
   url: string;
   type: 'raw' | 'mosaic' | 'indices';
   uploadDate: string;

@@ -48,7 +48,7 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({ image, onPreview, onDow
           </button>
         </div>
       </div>
-      
+
       <div className="p-3">
         <h3 className="font-medium text-sm text-gray-900 truncate mb-2">{image.filename}</h3>
         <div className="flex items-center justify-between text-xs text-gray-500">
