@@ -16,6 +16,7 @@ const Navigation: React.FC = () => {
 
   const { instance, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
+  const displayName = account?.name // unique name
 
   const logout = () => instance.logoutRedirect({
     postLogoutRedirectUri: window.location.origin + '/login'
@@ -26,8 +27,8 @@ const Navigation: React.FC = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/register-farm', label: 'Register Farm', icon: Upload },
-    { path: '/gallery', label: 'Gallery', icon: Image },
     { path: '/process', label: 'Process', icon: Settings },
+    { path: '/gallery', label: 'Gallery', icon: Image },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 
@@ -65,7 +66,7 @@ const Navigation: React.FC = () => {
 
           <div className="flex items-center space-x-4">
             <div className="text-sm text-gray-700">
-              Welcome, <span className="font-medium">{account?.name}</span>
+              Welcome, <span className="font-medium">{displayName}</span>
             </div>
             <button
               onClick={logout}

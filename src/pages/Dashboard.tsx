@@ -110,7 +110,7 @@ const Dashboard: React.FC = () => {
     },
     {
       title: 'Days Active',
-      value: profile ? Math.floor((Date.now() - new Date(profile.signupDate).getTime()) / (1000 * 60 * 60 * 24)) : 0,
+      value: profile ? Math.ceil((Date.now() - new Date(profile.signupDate).getTime()) / (1000 * 60 * 60 * 24)) : 0,
       icon: Calendar,
       color: 'text-orange-600'
     }

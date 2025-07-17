@@ -10,23 +10,40 @@ export const apiService = {
         farmId: string,
         farmName: string,
         files: FileList,
-        token: string
+        token: string,
+        onProgress?: (percent: number) => void
     ): Promise<boolean> => {
-        for (const file of Array.from(files)) {
-            const formData = new FormData();
-            formData.append("clientId", clientId);
-            formData.append("farmId", farmId);
-            formData.append("farmName", farmName);
-            formData.append("file", file);
+        try {
+            for (const file of Array.from(files)) {
+                const formData = new FormData();
+                formData.append("clientId", clientId);
+                formData.append("farmId", farmId);
+                formData.append("farmName", farmName);
+                formData.append("file", file);
 
-            await axios.post("http://localhost:8000/upload", formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data"
+                await axios.post("http://localhost:8000/upload", formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data"
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        if (progressEvent.total) {
+                            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                            if (onProgress) onProgress(percent);
+                        }
+
+                    }
+                });
+                if (onProgress) {
+                    onProgress(100); // show full bar
+                    await new Promise((res) => setTimeout(res, 300)); // slight delay
+                    onProgress(0);    // reset before next file
                 }
-            });
+            }
+            return true;
+        } catch (error) {
+            return false;
         }
-        return true;
     },
 
     // List files

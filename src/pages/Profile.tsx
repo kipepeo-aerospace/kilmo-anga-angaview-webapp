@@ -80,7 +80,7 @@ const Profile: React.FC = () => {
     },
     {
       label: 'Days Active',
-      value: Math.floor((Date.now() - new Date(profile.signupDate).getTime()) / (1000 * 60 * 60 * 24)),
+      value: Math.ceil((Date.now() - new Date(profile.signupDate).getTime()) / (1000 * 60 * 60 * 24)),
       icon: Calendar,
       color: 'text-orange-600'
     }

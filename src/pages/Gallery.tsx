@@ -28,6 +28,7 @@ const Gallery: React.FC = () => {
     { id: 'indices', label: 'Index Maps', count: 0 }
   ];
 
+  // fetch farms
   useEffect(() => {
     const fetchFarms = async () => {
       if (!account) return;
@@ -61,7 +62,7 @@ const Gallery: React.FC = () => {
     fetchFarms();
   }, [account, searchParams]);
 
-
+  // fetch images -> listfiles()
   useEffect(() => {
     const fetchImages = async () => {
       if (!account || !selectedFarm) return;
@@ -116,6 +117,7 @@ const Gallery: React.FC = () => {
       type: 'success'
     });
   };
+
   // get number of images available in each tab
   const getTabCounts = () => {
     return {

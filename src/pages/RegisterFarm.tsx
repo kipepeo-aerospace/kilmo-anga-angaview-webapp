@@ -4,6 +4,8 @@ import { Upload, X, CheckCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
+import { useNavigate } from 'react-router-dom';
+
 
 const RegisterFarm: React.FC = () => {
   const { instance, accounts } = useMsal();
@@ -15,6 +17,7 @@ const RegisterFarm: React.FC = () => {
     farmName: ''
   });
 
+  const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -72,6 +75,7 @@ const RegisterFarm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.farmId) {
@@ -109,16 +113,20 @@ const RegisterFarm: React.FC = () => {
         formData.farmId,
         formData.farmName,
         selectedFiles!,
-        token
+        token,
+        (progress) => setUploadProgress(progress)
       );
 
-      setUploadProgress(100);
-
       if (success) {
+        setUploadProgress(100);
         setToast({
           message: 'Farm registered and images uploaded successfully!',
           type: 'success'
         });
+
+        setTimeout(() => {
+          navigate('/process');
+        }, 2000);
 
         // Reset form
         setFormData({ farmId: '', farmName: '' });
@@ -126,6 +134,7 @@ const RegisterFarm: React.FC = () => {
         setPreviews([]);
         setUploadProgress(0);
       }
+
     } catch (error) {
       setToast({
         message: 'Upload failed. Please try again.',
