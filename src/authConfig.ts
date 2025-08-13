@@ -10,7 +10,7 @@ const msalConfig: Configuration = {
     },
     cache: {
         cacheLocation: "localStorage", // or "sessionStorage"
-        storeAuthStateInCookie: false,
+        storeAuthStateInCookie: true,
     },
 
     system: {
