@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ImageFile, ProcessingJob, UserProfile, Farm } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://kilimoanga-angaview-backend.victoriousbay-b086caac.southafricanorth.azurecontainerapps.io';
 
 export const apiService = {
     // Upload files
@@ -21,7 +21,7 @@ export const apiService = {
                 formData.append("farmName", farmName);
                 formData.append("file", file);
 
-                await axios.post("http://localhost:8000/upload", formData, {
+                await axios.post(`${API_BASE_URL}/upload`, formData, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "multipart/form-data"
@@ -53,7 +53,7 @@ export const apiService = {
         type: 'raw' | 'mosaic' | 'indices',
         token: string
     ): Promise<ImageFile[]> => {
-        const res = await axios.get(`http://localhost:8000/users/${clientId}/gallery`, {
+        const res = await axios.get(`${API_BASE_URL}/users/${clientId}/gallery`, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -69,7 +69,7 @@ export const apiService = {
     processIndices: async (clientId: string, farmId: string, indices: string[], token: string): Promise<ProcessingJob> => {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const res = await axios.post(`http://localhost:8000/process`, {
+        const res = await axios.post(`${API_BASE_URL}/process`, {
             clientId,
             farmId,
             indices,
@@ -87,7 +87,7 @@ export const apiService = {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         ///change this to your actual endpoint
-        const res = await axios.get(`http://localhost:8000/status`, {
+        const res = await axios.get(`${API_BASE_URL}/status`, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -102,7 +102,7 @@ export const apiService = {
 
     // Get user profile
     getUserProfile: async (clientId: string, email: string, displayName: string, token: string): Promise<UserProfile> => {
-        const res = await axios.get(`http://localhost:8000/users/${clientId}/profile`, {
+        const res = await axios.get(`${API_BASE_URL}/users/${clientId}/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -117,7 +117,7 @@ export const apiService = {
 
     // Get user farms
     getUserFarms: async (clientId: string, token: string): Promise<Farm[]> => {
-        const res = await axios.get(`http://localhost:8000/users/${clientId}/farms`, {
+        const res = await axios.get(`${API_BASE_URL}/users/${clientId}/farms`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
