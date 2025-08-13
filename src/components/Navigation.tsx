@@ -19,7 +19,7 @@ const Navigation: React.FC = () => {
   const displayName = account?.name // unique name
 
   const logout = () => instance.logoutRedirect({
-    postLogoutRedirectUri: window.location.origin + '/login'
+    postLogoutRedirectUri: window.location.origin
   });
 
   const location = useLocation();
