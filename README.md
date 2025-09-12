@@ -91,27 +91,40 @@ npm run dev
 
 ## 🔌 Mock API Endpoints
 
-The app currently uses mocked endpoints for all backend features. These will be connected to Azure services later.
+The app currently uses endpoints to communicate with the FASTAPI backend. These will be connected to Azure services later.
 
 | Action             | HTTP Method | Endpoint                                                  | Description                              |
 |--------------------|-------------|------------------------------------------------------------|------------------------------------------|
 | Upload Images      | POST        | `/upload`                                                  | Uploads drone images for a specific farm |
-| List Files         | GET         | `/list-files?client-id=...&farm-id=...&type=...`          | Lists images, mosaics, or indices        |
+| List Files         | GET         | `/gallery`                                                 | Lists images, mosaics, or indices        |
 | Trigger Processing | POST        | `/process`                                                 | Starts vegetation index generation job   |
-| Job Status         | GET         | `/status?client-id=...&farm-id=...`                       | Returns current processing status        |
-| User Profile       | GET         | `/profile?client-id=...`                                  | Returns basic user details and summary   |
+| Job Status         | GET         | `/status`                                                  | Returns current processing status        |
+| User Profile       | GET         | `/profile`                                                 | Returns basic user details and summary   |
+
+---
+
+## 🔧 Bugs, Fixes & Improvements
+
+- [ ] Refresh button returns 404 error
+- [ ] Processing is shown as complete when still processing
+- [ ] Multilingual support
+- [ ] Include support helpline
+- [ ] Improve UI/UX
 
 ---
 
 ## 📈 Roadmap
 
 - [x] VARI index support (done)
-- [ ] NDVI and other indices
-- [ ] Azure AD B2C integration for authentication
-- [ ] Insights dashboard (replant alerts, crop stress zones)
-- [ ] Azure Blob & Function integration
+- [x] NDVI and other indices
+- [x] Azure AD B2C integration for authentication
+- [x] Azure Blob & Function integration
+- [x] Azure Cosmos DB integration
+- [x] FASTAPI backend integration
+- [x] Deployment on Azure Web Apps
+- [ ] Start user testing campaign
 - [ ] Mobile app version
-- [ ] Multilingual support
+- [ ] Insights dashboard (replant alerts, crop stress zones)
 
 ---
 
