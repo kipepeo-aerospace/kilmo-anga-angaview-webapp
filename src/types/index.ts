@@ -51,3 +51,45 @@ export interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
 }
+
+export interface FarmDetails extends Farm {
+  location?: string;
+  area?: number;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+export interface IndicesImage {
+  id: string;
+  farmId: string;
+  indexType: string;
+  url: string;
+  createdAt: string;
+}
+
+export interface Analytics {
+  id: string;
+  farmId: string;
+  analysisDate: string;
+  ndviAverage: number;
+  ndviMin: number;
+  ndviMax: number;
+  healthScore: number;
+  stressAreas: number;
+  healthyAreas: number;
+  metadata?: Record<string, any>;
+}
+
+export interface Advisory {
+  id: string;
+  farmId: string;
+  createdAt: string;
+  advisoryType: 'irrigation' | 'fertilization' | 'pest_control' | 'general';
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high';
+  actionItems: string[];
+  status: 'pending' | 'in_progress' | 'completed';
+}

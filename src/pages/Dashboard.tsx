@@ -220,10 +220,16 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="mt-4 flex space-x-2">
                     <Link
+                      to={`/farm/${farm.id}`}
+                      className="flex-1 text-center px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                    >
+                      View Details
+                    </Link>
+                    <Link
                       to={`/gallery?farm=${farm.id}`}
                       className="flex-1 text-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
                     >
-                      View Images
+                      Gallery
                     </Link>
                     <Link
                       to={`/process?farm=${farm.id}`}

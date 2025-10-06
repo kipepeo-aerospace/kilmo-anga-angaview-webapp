@@ -125,4 +125,26 @@ export const apiService = {
         return res.data;
     },
 
+    // Get farm details
+    getFarmDetails: async (clientId: string, farmId: string, token: string): Promise<any> => {
+        const res = await axios.get(`${API_BASE_URL}/users/${clientId}/farms/${farmId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return res.data;
+    },
+
+    // Get farm analytics
+    getFarmAnalytics: async (farmId: string, token: string): Promise<any[]> => {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return [];
+    },
+
+    // Get farm advisories
+    getFarmAdvisories: async (farmId: string, token: string): Promise<any[]> => {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return [];
+    },
+
 };

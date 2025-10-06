@@ -10,6 +10,7 @@ import RegisterFarm from './pages/RegisterFarm';
 import Gallery from './pages/Gallery';
 import Process from './pages/Process';
 import Profile from './pages/Profile';
+import FarmDetails from './pages/FarmDetails';
 
 function App() {
   return (
@@ -48,6 +49,12 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/farm/:farmId" element={
+              <ProtectedRoute>
+                <Navigation />
+                <FarmDetails />
               </ProtectedRoute>
             } />
           </Routes>
