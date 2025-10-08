@@ -70,26 +70,20 @@ index.js → App entry point
 
 ## 🔧 Setup Instructions
 
-### 1. Clone the repository
 
-```bash
-git clone https://github.com/yourusername/kilimo-anga-frontend.git
-cd kilimo-anga-frontend
-```
-
-### 2. Install deoendecies
+### 1. Install deoendecies
 ```bash
 npm install
 ```
 
-### 3. Run the development server
+### 2. Run the development server
 ```bash
 npm run dev
 ```
 
 ---
 
-## 🔌 Mock API Endpoints
+## 🔌 API Endpoints
 
 The app currently uses endpoints to communicate with the FASTAPI backend. These will be connected to Azure services later.
 
