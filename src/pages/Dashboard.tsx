@@ -29,7 +29,10 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!account) return;
+      if (!account){
+        setIsLoading(false);
+        return;
+      } 
 
       try {
         const response = await instance.acquireTokenSilent({

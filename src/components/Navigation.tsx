@@ -65,16 +65,28 @@ const Navigation: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-700">
-              Welcome, <span className="font-medium">{displayName}</span>
-            </div>
-            <button
-              onClick={logout}
-              className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </button>
+            {account ? (
+              <>
+                <div className="text-sm text-gray-700">
+                  Welcome, <span className="font-medium">{displayName}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => instance.loginRedirect()}
+                className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors duration-200"
+              >
+                <User className="h-4 w-4" />
+                <span>Login</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

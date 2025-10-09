@@ -31,6 +31,7 @@ const Process: React.FC = () => {
   useEffect(() => {
     const fetchFarms = async () => {
       if (!account) return;
+      
 
       try {
         const response = await instance.acquireTokenSilent({

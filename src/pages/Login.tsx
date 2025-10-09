@@ -1,27 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMsal } from '@azure/msal-react';
 import { PopupRequest } from '@azure/msal-browser';
 
 const loginRequest: PopupRequest = {
-    scopes: ['openid', 'profile', 'api://kipepeo.space/kilimoanga-api/read'],
+  scopes: ['openid', 'profile', 'api://kipepeo.space/kilimoanga-api/read'],
 };
 
 const Login: React.FC = () => {
-    const { instance } = useMsal();
-    const navigate = useNavigate();
+  const { instance } = useMsal();
+  const navigate = useNavigate();
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-    const handleLogin = async () => {
-        try {
-            const response = await instance.loginPopup(loginRequest);
-            if (response.account) {
-                console.log('Login successful');
-                navigate('/dashboard');
-            }
-        } catch (error) {
-            console.error('Login failed:', error);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await instance.handleRedirectPromise();
+        if (response?.account) {
+          instance.setActiveAccount(response.account);
+          navigate('/');
+        } else {
+          const account = instance.getActiveAccount();
+          if (account) {
+            navigate('/');
+          }
         }
+      } catch (error) {
+        console.error('[MSAL] Redirect handling error:', error);
+      } finally {
+        setCheckingAuth(false);
+      }
     };
+
+    checkAuth();
+  }, [instance, navigate]);
+
+  const handleLogin = () => {
+    instance.loginRedirect(loginRequest);
+  };
+
+  if (checkingAuth) return null; // Prevent UI flicker during redirect handling
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
