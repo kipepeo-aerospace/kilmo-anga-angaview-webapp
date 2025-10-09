@@ -99,7 +99,7 @@ The app currently uses endpoints to communicate with the FASTAPI backend. These 
 
 ## 🔧 Bugs, Fixes & Improvements
 
-- [ ] Refresh button returns 404 error
+- [x] Refresh button returns 404 error
 - [ ] Processing is shown as complete when still processing
 - [ ] Multilingual support
 - [ ] Include support helpline
@@ -118,7 +118,7 @@ The app currently uses endpoints to communicate with the FASTAPI backend. These 
 - [x] Deployment on Azure Web Apps
 - [ ] Start user testing campaign
 - [ ] Mobile app version
-- [ ] Insights dashboard (replant alerts, crop stress zones)
+- [x] Insights dashboard (replant alerts, crop stress zones)
 
 ---
 
