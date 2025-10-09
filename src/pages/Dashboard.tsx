@@ -5,10 +5,8 @@ import {
   Upload,
   Image,
   Settings,
-  BarChart3,
   Calendar,
   MapPin,
-  TrendingUp,
   Activity
 } from 'lucide-react';
 import { apiService } from '../services/api';
