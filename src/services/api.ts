@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { ImageFile, ProcessingJob, UserProfile, Farm } from '../types';
 
-const API_BASE_URL = 'https://kilimoanga-angaview-backend.victoriousbay-b086caac.southafricanorth.azurecontainerapps.io';
+{/*const API_BASE_URL = 'https://kilimoanga-angaview-backend.victoriousbay-b086caac.southafricanorth.azurecontainerapps.io';*/}
+const API_BASE_URL = ' http://localhost:8000';
 
 export const apiService = {
     // Upload files

@@ -26,9 +26,9 @@ const Navigation: React.FC = () => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
+    { path: '/farms', label: 'Farms', icon: Sprout },
     { path: '/register-farm', label: 'Register Farm', icon: Upload },
     { path: '/process', label: 'Process', icon: Settings },
-    { path: '/gallery', label: 'Gallery', icon: Image },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 

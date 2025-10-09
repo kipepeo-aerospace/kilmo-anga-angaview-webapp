@@ -74,10 +74,10 @@ const Dashboard: React.FC = () => {
       color: 'bg-green-600 hover:bg-green-700'
     },
     {
-      title: 'View Gallery',
-      description: 'Browse your uploaded images and results',
+      title: 'View Farms',
+      description: 'Browse your uploaded farms and results',
       icon: Image,
-      link: '/gallery',
+      link: '/farms',
       color: 'bg-blue-600 hover:bg-blue-700'
     },
     {
@@ -224,12 +224,6 @@ const Dashboard: React.FC = () => {
                       className="flex-1 text-center px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
                     >
                       View Details
-                    </Link>
-                    <Link
-                      to={`/gallery?farm=${farm.id}`}
-                      className="flex-1 text-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
-                    >
-                      Gallery
                     </Link>
                     <Link
                       to={`/process?farm=${farm.id}`}

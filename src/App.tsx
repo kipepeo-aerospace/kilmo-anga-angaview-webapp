@@ -11,6 +11,7 @@ import Gallery from './pages/Gallery';
 import Process from './pages/Process';
 import Profile from './pages/Profile';
 import FarmDetails from './pages/FarmDetails';
+import Farms from './pages/Farms';
 
 function App() {
   return (
@@ -55,6 +56,12 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <FarmDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/farms" element={
+              <ProtectedRoute>
+                <Navigation />
+                <Farms />
               </ProtectedRoute>
             } />
           </Routes>

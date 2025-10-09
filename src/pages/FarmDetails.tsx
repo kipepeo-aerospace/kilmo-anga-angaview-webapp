@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMsal, useAccount } from "@azure/msal-react";
 import {
   ArrowLeft,
@@ -19,6 +20,7 @@ import { apiService } from '../services/api';
 import { Farm, Analytics, Advisory, ImageFile } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ImagePreviewModal from '../components/ImagePreviewModal';
+import Toast from '../components/Toast';
 
 const FarmDetails: React.FC = () => {
   const { farmId } = useParams<{ farmId: string }>();
@@ -35,6 +37,7 @@ const FarmDetails: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState<string>('mosaic');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   useEffect(() => {
     const fetchFarmData = async () => {
@@ -95,9 +98,9 @@ const FarmDetails: React.FC = () => {
       </div>
     );
   }
-
+ 
   const availableIndices = ['mosaic', ...Array.from(new Set(indicesImages.map(img => {
-    const match = img.filename.match(/_(NDVI|NDRE|GNDVI|EVI|SAVI|MSAVI)_/);
+    const match = img.filename.match(/_(VARI|NDVI|NDRE|GNDVI|EVI|SAVI|MSAVI)/);
     return match ? match[1] : null;
   }).filter(Boolean)))];
 
@@ -105,10 +108,22 @@ const FarmDetails: React.FC = () => {
     if (selectedIndex === 'mosaic') {
       return mosaicImages[0];
     }
-    return indicesImages.find(img => img.filename.includes(`_${selectedIndex}_`));
+    return indicesImages.find(img => img.filename.includes(`_${selectedIndex}`));
   };
 
   const currentImage = getCurrentImage();
+
+  const handleDownload = (image: ImageFile) => {
+    const link = document.createElement('a');
+    link.href = image.url;
+    link.download = image.filename;
+    link.click();
+
+    setToast({
+      message: `Downloaded ${image.filename}`,
+      type: 'success'
+    });
+};
 
   const getAdvisoryIcon = (type: string) => {
     switch (type) {
@@ -151,11 +166,11 @@ const FarmDetails: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/farms')}
           className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Dashboard
+          Back to Farm List
         </button>
 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -176,6 +191,14 @@ const FarmDetails: React.FC = () => {
                   <span>{farm.imageCount} images</span>
                 </div>
               </div>
+              <div className="mt-4 flex space-x-2">
+                  <Link
+                    to={`/process?farm=${farm.id}`}
+                    className="flex-1 text-center px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200"
+                  >
+                    Process
+                  </Link>
+                </div>
             </div>
           </div>
         </div>
@@ -189,14 +212,14 @@ const FarmDetails: React.FC = () => {
                 {availableIndices.map((index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedIndex(index)}
+                    onClick={() => setSelectedIndex(index as string)}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                       selectedIndex === index
                         ? 'bg-green-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {index.toUpperCase()}
+                    {(index as string).toUpperCase()}
                   </button>
                 ))}
               </div>
@@ -280,7 +303,7 @@ const FarmDetails: React.FC = () => {
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
               <p className="text-gray-600 text-sm">No advisories available yet</p>
               <p className="text-gray-500 text-xs mt-1">
-                Your pipeline will generate advisories after processing images and analytics
+                Pipeline work ongoing to generate advisories after processing images and analytics
               </p>
             </div>
           ) : (
@@ -340,6 +363,15 @@ const FarmDetails: React.FC = () => {
         <ImagePreviewModal
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
+          onDownload={handleDownload}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>

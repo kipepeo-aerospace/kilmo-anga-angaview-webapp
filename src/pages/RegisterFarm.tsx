@@ -125,7 +125,7 @@ const RegisterFarm: React.FC = () => {
         });
 
         setTimeout(() => {
-          navigate('/process');
+          navigate('/process?farm=${farm.id}');
         }, 2000);
 
         // Reset form
