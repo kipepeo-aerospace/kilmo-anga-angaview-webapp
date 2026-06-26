@@ -2,7 +2,7 @@
 
 **Kilimo Anga** is a web-based application that enables smallholder farmers to upload drone imagery, process it into vegetation index maps (e.g., VARI), and visualize results through an intuitive dashboard.
 
-This frontend is built using **React** and **Tailwind CSS**, designed to integrate with **Azure Blob Storage**, **Azure Container Instances**, and **Azure Functions**. The MVP is focused on providing an end-to-end testable system for early client feedback and deployment.
+This frontend is built using **React** and **Tailwind CSS**, in development to integrate with Google Cloud Platform. The MVP is focused on providing an end-to-end testable system for early client feedback and deployment.
 
 ---
 
